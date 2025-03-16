@@ -523,6 +523,7 @@ name = "simplevenom"
 version = "2.0.0"
 dependencies = [
  "clap",
+ "crossterm",
  "localize",
  "ratatui",
 ]
