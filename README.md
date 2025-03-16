@@ -1,9 +1,8 @@
 # SimpleVenom
-![Profile views](https://gpvc.arturio.dev/ByCh4n)
 
 (
 **Contact:**
-[*Discord*](https://discord.gg/m5B4c5rnbR)
+[*Discord*](https://discord.gg/29vkJyfRj8)
 
 [*YouTube*](https://www.youtube.com/channel/UCzOK1_NybPfqNb1V4Hjj-iw?view_as=subscriber)
 )
@@ -47,5 +46,4 @@ Nickname | GitHub Link
 ![unknown](https://user-images.githubusercontent.com/67187998/102713174-06f40c80-427b-11eb-808c-be27c8dc399d.png)
 
 ## License
-[GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/)
-
+[MIT](https://choosealicense.com/licenses/mit/)
