@@ -1,22 +1,17 @@
 # SimpleVenom
 
-(
 **Contact:**
-[*Discord*](https://discord.gg/29vkJyfRj8)
-
-[*YouTube*](https://www.youtube.com/channel/UCzOK1_NybPfqNb1V4Hjj-iw?view_as=subscriber)
-)
+[Discord](https://discord.gg/6zEu3hC9uR)
 
 ![logo](https://user-images.githubusercontent.com/67187998/102699886-3fed9c00-41fd-11eb-8163-eaf72618e862.png)
 
 ## Download & Usage
 
-```bash
-git clone https://github.com/ByCh4n/SimpleVenom
-cd SimpleVenom
-bash ./simplevenom.sh
+### Fast build, it's used for development.
+```sh
+git clone https://github.com/ByCh4n/SimpleVenom && cd SimpleVenom
+cargo run
 ```
-Also, there is no Instalation. Just start and use Script. SimpleVenom will download any missing packages.
 
 ## Thanks To
 

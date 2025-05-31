@@ -4,7 +4,6 @@ use crate::i10n::transcript::TranscriptinTable;
 
 pub fn run(mut terminal: DefaultTerminal, language: &String) -> Result<(), Box<dyn std::error::Error>> {
     loop {
-        // terminal.draw(render)?;
         let _ = terminal.draw(|frame| render(frame, language));
         if matches!(event::read()?, Event::Key(_)) {
             break Ok(());
