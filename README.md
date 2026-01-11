@@ -35,7 +35,7 @@ This script relies on `msfvenom` (part of the Metasploit Framework) for payload 
 ```bash
 git clone https://github.com/ByCh4n/SimpleVenom
 cd SimpleVenom
-chmod +x simplevenom.sh
+chmod u+x simplevenom.sh
 ./simplevenom.sh
 ```
 
