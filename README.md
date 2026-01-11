@@ -76,4 +76,4 @@ You can run the script without arguments to let it auto-detect the best mode, or
 
 ## License
 
-This project is licensed under the [GPL-3.0 License](https://choosealicense.com/licenses/gpl-3.0/).
+This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
