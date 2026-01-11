@@ -4,6 +4,8 @@
 ![License](https://img.shields.io/github/license/ByCh4n/SimpleVenom)
 ![Stars](https://img.shields.io/github/stars/ByCh4n/SimpleVenom?style=social)
 
+**Community / Support:** [Discord](https://discord.gg/6zEu3hC9uR)
+
 SimpleVenom is a robust wrapper for generating Metasploit payloads, offering three different user interfaces: GUI (Zenity), TUI (Dialog), and a standard CLI Shell. It automatically detects your installed tools to provide the best possible experience.
 
 ## Features
@@ -71,7 +73,6 @@ You can run the script without arguments to let it auto-detect the best mode, or
 
 - **ByCh4n**
 - **lazypwny**
-- [Discord](https://discord.gg/6zEu3hC9uR)
 
 ## License
 
